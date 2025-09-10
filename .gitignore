@@ -1,5 +1,6 @@
 .venv
 .env
+.env.example
 alembic.ini
 test.py
 .idea
