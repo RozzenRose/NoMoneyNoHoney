@@ -1,0 +1,6 @@
+.venv
+.env
+alembic.ini
+test.py
+.idea
+__pycache__/
