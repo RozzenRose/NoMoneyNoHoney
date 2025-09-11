@@ -6,7 +6,7 @@ from app.schemas import CreateUser
 from app.database.db_functions import create_user_in_db, get_user
 from app.functions.email_validation import email_validation
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from app.functions.hashing import PassHasher, PassVerify
+from app.functions.hashing import pass_hasher, pass_verify
 from app.functions.auth_functions import create_access_token, get_current_user
 from datetime import timedelta
 
@@ -28,7 +28,7 @@ async def create_user(db: Annotated[AsyncSession, Depends(get_db)], create_user:
     if not await email_validation(create_user.email):
         return {'status_code':status.HTTP_422_UNPROCESSABLE_ENTITY,
                 'transaction': 'Email address is not valid'}
-    hashed_password = await PassHasher(create_user.password)
+    hashed_password = await pass_hasher(create_user.password)
     await create_user_in_db(db, create_user, hashed_password)
     return {'status_code':status.HTTP_201_CREATED,
             'transaction': 'User created successfully'}
@@ -41,7 +41,7 @@ async def login(db: Annotated[AsyncSession, Depends(get_db)],
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='User is not exist')
-    if not await PassVerify(user.hashed_password, form_data.password):
+    if not await pass_verify(user.hashed_password, form_data.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Invalid password')
     token = await create_access_token(user.id, user.username,

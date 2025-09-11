@@ -17,5 +17,5 @@ class CreateUser(BaseModel):
 
 
 class CreateCategory(BaseModel):
+    owner_id: int
     category_name: str
-    parent_id_category: int | None = None
