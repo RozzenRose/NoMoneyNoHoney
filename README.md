@@ -84,15 +84,6 @@ After starting the application, the API documentation will be available at:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-## 🛣️ Roadmap
-
-- [ ] Implement account management API
-- [ ] Add expense/income categories
-- [ ] Set up recurring transactions
-- [ ] Export data to Excel/PDF
-- [ ] Bank API integration
-- [ ] Mobile application
-
 ## 🤝 How to Contribute
 
 1. Fork the repository
