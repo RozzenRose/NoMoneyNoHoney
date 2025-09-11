@@ -3,10 +3,9 @@ from typing import Annotated
 from app.database.db_depends import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import CreateUser
-from app.functions.db_functions import create_user_in_db
+from app.database.db_functions import create_user_in_db, get_user
 from app.functions.email_validation import email_validation
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from app.functions.db_functions import get_user
 from app.functions.hashing import PassHasher, PassVerify
 from app.functions.auth_functions import create_access_token, get_current_user
 from datetime import timedelta
