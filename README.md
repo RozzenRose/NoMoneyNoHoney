@@ -3,15 +3,6 @@
 ## 📋 Description
 NoMoneyNoHoney is a modern web application for personal finance management that helps you track income and expenses, analyze cash flows, and achieve financial goals.
 
-## ✨ Features
-
-- 📊 Income and expense tracking
-- 📈 Financial statistics visualization
-- 🏷 Transaction categorization
-- 🔐 Secure user authentication
-- 📱 Responsive interface
-- 🔄 Cross-device synchronization
-
 ## 🚀 Technology Stack
 
 - **Backend**: Python 3.13, FastAPI
