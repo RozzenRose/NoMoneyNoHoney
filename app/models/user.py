@@ -16,3 +16,4 @@ class User(Base):
 
     purchases = relationship("Purchase", back_populates='user')
     incomes = relationship("Income", back_populates='user')
+    categories = relationship("Category", back_populates='owner')

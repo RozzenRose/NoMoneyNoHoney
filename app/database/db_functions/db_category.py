@@ -1,10 +1,11 @@
 from app.database.models import User, Purchase, Income, Category
-from app.schemas import CreateUser
-from sqlalchemy import insert, select
+from app.schemas import CreateCategory
+from sqlalchemy import insert
 
-async def create_category_in_db(db, owner_id: int, category_name: str) -> None:
+
+async def create_category_in_db(db, create_category: CreateCategory) -> None:
     data = insert(Category).values(
-        owner_id=owner_id,
-        category_name=category_name)
+        owner_id=create_category.owner_id,
+        category_name=create_category.category_name)
     await db.execute(data)
     await db.commit()

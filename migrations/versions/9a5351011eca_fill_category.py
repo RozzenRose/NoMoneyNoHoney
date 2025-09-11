@@ -1,8 +1,8 @@
-"""Add default root categories
+"""fill category
 
-Revision ID: 55bf12345678
-Revises: 44ae1382076a
-Create Date: 2025-09-11 16:37:10.000000
+Revision ID: 9a5351011eca
+Revises: 18c874e62742
+Create Date: 2025-09-11 19:57:40.854002
 
 """
 from typing import Sequence, Union
@@ -10,9 +10,10 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
+
 # revision identifiers, used by Alembic.
-revision: str = '55bf12345678'
-down_revision: Union[str, Sequence[str], None] = '44ae1382076a'
+revision: str = '9a5351011eca'
+down_revision: Union[str, Sequence[str], None] = '18c874e62742'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
