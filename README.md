@@ -85,12 +85,6 @@ After starting the application, the API documentation will be available at:
 - ReDoc: http://localhost:8000/redoc
 
 
-## 📄 License
-
-This project is licensed under the MIT License - see the `LICENSE` file for details.
-
----
-
 <div align="center">
   <sub>Built with ❤️ for better personal finance management</sub>
 </div>
