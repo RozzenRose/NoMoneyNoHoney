@@ -14,8 +14,3 @@ class CreateUser(BaseModel):
         if name.isalpha():
             return name.capitalize()
         raise ValueError('Only letters in names, please')
-
-
-class CreateCategory(BaseModel):
-    owner_id: int
-    category_name: str

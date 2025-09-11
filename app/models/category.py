@@ -12,5 +12,5 @@ class Category(Base):
     category_name = Column(String)
     is_root = Column(Boolean, default=False)
 
-    owner = relationship('User', back_populates='categories')
+    user = relationship('User', back_populates='categories')
     purchases = relationship("Purchase", back_populates='category')

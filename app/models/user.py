@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = 'users'
+
     id = Column(Integer, primary_key=True, index=True)
     firstname = Column(String, nullable=False)
     lastname = Column(String, nullable=False)
@@ -16,4 +17,4 @@ class User(Base):
 
     purchases = relationship("Purchase", back_populates='user')
     incomes = relationship("Income", back_populates='user')
-    categories = relationship("Category", back_populates='owner')
+    categories = relationship("Category", back_populates='user')

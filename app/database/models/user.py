@@ -17,3 +17,4 @@ class User(Base):
     # Используем строку, чтобы избежать проблем с импортом
     purchases = relationship("Purchase", back_populates='user')
     incomes = relationship("Income", back_populates='user')
+    categories = relationship("Category", back_populates='user')

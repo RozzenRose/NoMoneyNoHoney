@@ -3,6 +3,10 @@ import jwt
 from app.config import settings
 from fastapi import Depends
 from typing import Annotated
+from fastapi.security import OAuth2PasswordBearer
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
 
 async def create_access_token(user_id: int, username: str, email: str, is_admin: bool, expires_delta: timedelta):
@@ -15,7 +19,7 @@ async def create_access_token(user_id: int, username: str, email: str, is_admin:
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)   #Создание токена
 
 
-async def get_current_user(token):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm]) #Декодирование токена
     user_id: int | None = payload.get('user_id')
     username: str | None = payload.get('username')
