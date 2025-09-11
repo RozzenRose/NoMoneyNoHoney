@@ -89,12 +89,6 @@ After starting the application, the API documentation will be available at:
 
 This project is licensed under the MIT License - see the `LICENSE` file for details.
 
-## ✉️ Contact
-
-Your Name - [@your_username](https://github.com/yourusername) - your.email@example.com
-
-Project Link: [https://github.com/yourusername/NoMoneyNoHoney](https://github.com/yourusername/NoMoneyNoHoney)
-
 ---
 
 <div align="center">
