@@ -25,7 +25,7 @@ async def get_incomes_current_from_db(db, user_id) -> list[Income]:
         select(Income)
         .where(
             Income.owner_id == user_id,
-            extract("month", Income.created_at) == extract("month", func.now())
+            extract("month", Income.created_at) == extract("month", func.current_date())
         )
     )
     answer = await db.execute(query)
@@ -37,7 +37,20 @@ async def get_incomes_last_month_from_db(db, user_id) -> list[Income]:
         select(Income)
         .where(
             Income.owner_id == user_id,
-            extract("month", Income.created_at) == extract("month", func.now()) - 1
+            extract("month", Income.created_at) == extract("month", func.current_date()) - 1
+        )
+    )
+    answer = await db.execute(query)
+    return answer.scalars().all()
+
+
+async def get_incomes_in_time_limits_from_db(db, user_id, start_date, end_date) -> list[Income]:
+    query = (
+        select(Income)
+        .where(
+            Income.owner_id == user_id,
+            Income.created_at >= start_date,
+            Income.created_at <= end_date
         )
     )
     answer = await db.execute(query)

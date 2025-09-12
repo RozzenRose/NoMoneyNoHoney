@@ -1,6 +1,7 @@
 from app.database.engine import Base
-from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Float, DateTime, func
+from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Float, Date, func
 from sqlalchemy.orm import relationship
+from datetime import date
 
 
 class Income(Base):
@@ -13,6 +14,6 @@ class Income(Base):
     is_rub = Column(Boolean)
     is_euro = Column(Boolean)
     is_rsd = Column(Boolean)
-    created_at = Column(DateTime, server_default=func.now())
+    created_at = Column(Date, server_default=func.current_date())
 
     user = relationship('User', back_populates='incomes')

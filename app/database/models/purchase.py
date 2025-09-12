@@ -1,6 +1,8 @@
 from app.database.engine import Base
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, DateTime, func
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Date, func
 from sqlalchemy.orm import relationship
+from datetime import date
+
 
 class Purchase(Base):
     __tablename__ = 'purchases'
@@ -15,7 +17,7 @@ class Purchase(Base):
     owner_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     category_id = Column(Integer, ForeignKey('categories.id'))
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, server_default=func.now())
+    created_at = Column(Date, server_default=func.current_date())
 
     category = relationship("Category", back_populates='purchases')
     # Указываем foreign_keys, так как поле называется owner_id

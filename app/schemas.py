@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator
-from datetime import datetime
+from datetime import date
 from pydantic.v1 import root_validator
 
 
@@ -33,3 +33,30 @@ class CreateIncome(BaseModel):
         if sum([is_rub, is_euro, is_rsd]) != 1:
             raise ValueError('Currency error: choose only one currency')
         return values
+
+
+class IncomeTimeLimits(BaseModel):
+    start_date: date = date.today()
+    end_date: date = date.today()
+
+    @root_validator
+    def check_dates(cls, values):
+        start_date = values.get('start_date')
+        end_date = values.get('end_date')
+        if start_date >= end_date:
+            raise ValueError('Date error: start_date must be earlier than end_date')
+        return values
+
+
+class PurchaseBase(BaseModel):
+    name: str
+    description: str
+    price: float
+    is_rub: bool
+    is_euro: bool
+    is_rsd: bool
+    category_id: int
+
+
+class PurchasesListCreate(BaseModel):
+    purchases: list[PurchaseBase]
