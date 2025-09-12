@@ -2,7 +2,6 @@ from sqlalchemy import insert, select, func, extract
 from app.database.models import User, Purchase, Income, Category
 
 
-
 async def create_income_in_db(db, owner, discription, quantity, is_rub, is_euro, is_rsd) -> None:
     data = insert(Income).values(
         owner_id=int(owner),
