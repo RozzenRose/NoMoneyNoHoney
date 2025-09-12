@@ -18,7 +18,7 @@ async def create_category(db: Annotated[AsyncSession, Depends(get_db)], category
             'transaction': 'Category created successfully'}
 
 
-@router.get('all_categories')
+@router.get('all_your_categories')
 async def get_all_categories(db: Annotated[AsyncSession, Depends(get_db)],
                              user: Annotated[dict, Depends(get_current_user)]):
     answer = await get_all_categories_from_db(db, user.get('user_id'))
