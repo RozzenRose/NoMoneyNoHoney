@@ -1,5 +1,5 @@
 from app.database.engine import Base
-from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Float, DateTime, func
+from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Float, Date, func
 from sqlalchemy.orm import relationship
 
 
@@ -16,7 +16,7 @@ class Purchase(Base):
     owner_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     category_id = Column(Integer, ForeignKey('categories.id'))
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, server_default=func.now())
+    created_at = Column(Date, server_default=func.current_date())
 
     category = relationship('Category', back_populates='purchases')
     user = relationship('User', back_populates='purchases')

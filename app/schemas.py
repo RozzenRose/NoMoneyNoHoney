@@ -48,6 +48,10 @@ class IncomeTimeLimits(BaseModel):
         return values
 
 
+class PurchaseTimeLimits(IncomeTimeLimits):
+    pass
+
+
 class PurchaseBase(BaseModel):
     name: str
     description: str

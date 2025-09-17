@@ -1,5 +1,5 @@
 from app.database.models import User, Purchase, Income, Category
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, or_
 
 
 async def create_category_in_db(db, owner, category_name) -> None:
@@ -11,6 +11,7 @@ async def create_category_in_db(db, owner, category_name) -> None:
 
 
 async def get_all_categories_from_db(db, user_id) -> list[Category]:
-    query = select(Category).where(Category.owner_id==user_id or Category.is_root==True)
+    query = select(Category).where(or_(Category.owner_id == user_id,
+                                       Category.is_root.is_(True)))
     answer = await db.execute(query)
-    return [item.category_name for item in answer.scalars().all()]
+    return answer.scalars().all()

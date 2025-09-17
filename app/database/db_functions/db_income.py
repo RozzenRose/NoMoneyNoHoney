@@ -45,13 +45,8 @@ async def get_incomes_last_month_from_db(db, user_id) -> list[Income]:
 
 
 async def get_incomes_in_time_limits_from_db(db, user_id, start_date, end_date) -> list[Income]:
-    query = (
-        select(Income)
-        .where(
-            Income.owner_id == user_id,
-            Income.created_at >= start_date,
-            Income.created_at <= end_date
-        )
-    )
+    query = (select(Income).where(Income.owner_id == user_id,
+                                  Income.created_at >= start_date,
+                                  Income.created_at <= end_date))
     answer = await db.execute(query)
     return answer.scalars().all()
