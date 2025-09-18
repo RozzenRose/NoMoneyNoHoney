@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.functions.auth_functions import get_current_user
 from app.schemas import PurchasesListCreate, PurchaseTimeLimits
 from app.database.db_functions import (create_purchases_list_in_db, get_all_purchases_from_db,
-                                        get_purchases_current_week_from_db, get_purchases_in_limits_from_db)
+                                get_purchases_current_week_from_db, get_purchases_in_limits_from_db)
 
 
 router = APIRouter(prefix='/purchases', tags=['purchases'])
