@@ -13,3 +13,11 @@ class Category(Base):
 
     purchases = relationship("Purchase", back_populates='category')
     user = relationship("User", back_populates='categories')
+
+
+    def to_dict(self):
+        return {'id': self.id,
+                'owner_id': self.owner_id,
+                'category_name': self.category_name,
+                'is_root': self.is_root}
+

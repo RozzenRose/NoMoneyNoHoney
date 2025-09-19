@@ -14,6 +14,7 @@ app = FastAPI()
 async def startup_event():
     await RabbitMQConnectionManager.get_connection()
 
+
 @app.on_event("shutdown")
 async def shutdown_event():
     await RabbitMQConnectionManager.close_connection()

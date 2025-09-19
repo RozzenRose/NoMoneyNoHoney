@@ -22,6 +22,7 @@ async def get_purchases_current_week_from_db(db, owner_id) -> list[Purchase]:
     answer = await db.execute(querry)
     return answer.scalars().all()
 
+
 async def get_purchases_in_limits_from_db(db, owner_id, start_date, end_date) -> list[Purchase]:
     query = select(Purchase).where(Purchase.owner_id==owner_id,
                                     Purchase.created_at >= start_date,
