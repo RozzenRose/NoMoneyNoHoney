@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
-import jwt
+import jwt, uuid
 from app.config import settings
 from fastapi import Depends
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
+from app.redis import Redis
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
@@ -34,4 +35,20 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             'email': email,
             'is_admin': is_admin,
             'expire': expire > current_time}
+
+
+async def create_refresh_token(username: str) -> str:
+    token = str(uuid.uuid4())
+    redis = await Redis.get_redis()
+    await redis.set(f'refresh_token: {token}', username, ex=60*60*24*7)
+    return token
+
+
+async def verify_refresh_token(token: str) -> str | None:
+    redis = await Redis.get_redis()
+    username = await redis.get(f'refresh_token: {token}')
+    if username:
+        return username
+    else:
+        return None
 

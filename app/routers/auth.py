@@ -7,7 +7,8 @@ from app.database.db_functions import create_user_in_db, get_user
 from app.functions.email_validation import email_validation
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from app.functions.hashing import pass_hasher, pass_verify
-from app.functions.auth_functions import create_access_token, get_current_user
+from app.functions.auth_functions import (create_access_token, get_current_user,
+                                          create_refresh_token, verify_refresh_token)
 from datetime import timedelta
 
 
@@ -47,4 +48,24 @@ async def login(db: Annotated[AsyncSession, Depends(get_db)],
     token = await create_access_token(user.id, user.username,
                                       user.email, user.is_admin,
                                       expires_delta=timedelta(minutes=20))
-    return {'access_token': token, 'token_type': 'bearer'}
+    refresh_token = await create_refresh_token(user.username)
+    return {'access_token': token,
+            'refresh_token': refresh_token,
+            'token_type': 'bearer'}
+
+
+@router.post('/refresh')
+async def refresh_tokens(db: Annotated[AsyncSession, Depends(get_db)],
+                        refresh_token: str):
+    username = await verify_refresh_token(refresh_token)
+    if not username:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail='Invalid refresh token')
+    user = await get_user(db, username)
+    access_token = await create_access_token(user.id, user.username,
+                                             user.email, user.is_admin,
+                                             expires_delta=timedelta(minutes=20))
+    new_refresh_token = await create_refresh_token(user.username)
+    return {'access_token': access_token,
+            'refresh_token': new_refresh_token,
+            'token_type': 'bearer'}
