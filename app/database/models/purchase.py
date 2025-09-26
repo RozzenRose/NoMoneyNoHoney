@@ -23,6 +23,7 @@ class Purchase(Base):
     # Указываем foreign_keys, так как поле называется owner_id
     user = relationship("User", back_populates='purchases', foreign_keys=[owner_id])
 
+
     def to_dict(self):
         return {'id': self.id,
                 'name': self.name,

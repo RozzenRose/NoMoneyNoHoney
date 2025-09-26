@@ -1,5 +1,7 @@
 from app.database.models import User, Purchase, Income, Category
 from sqlalchemy import insert, select, or_
+from app.redis import Redis
+import json
 
 
 async def create_category_in_db(db, owner, category_name) -> None:
@@ -11,7 +13,16 @@ async def create_category_in_db(db, owner, category_name) -> None:
 
 
 async def get_all_categories_from_db(db, user_id) -> list[Category]:
+    redis = await Redis.get_redis()
+    cache_key = f'{user_id}: categories'
+    cache = await redis.get(cache_key)
+    if cache:
+        print('Данные из кэша')
+        return json.loads(cache)
     query = select(Category).where(or_(Category.owner_id == user_id,
                                        Category.is_root.is_(True)))
     answer = await db.execute(query)
-    return answer.scalars().all()
+    data = answer.scalars().all()
+    await redis.set(cache_key, json.dumps([item.to_dict() for item in data]), ex=180)
+    print('Данные сохранины в кэш')
+    return data
