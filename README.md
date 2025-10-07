@@ -75,4 +75,6 @@ After starting the application, the API documentation will be available at:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-Reproting service: https://github.com/RozzenRose/ReportBuilder
+## Services:
+- Reproting service: https://github.com/RozzenRose/ReportBuilder
+- Currency calculate service: https://github.com/RozzenRose/CurrencyAggregator
