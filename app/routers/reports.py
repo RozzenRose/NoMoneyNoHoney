@@ -18,7 +18,11 @@ router = APIRouter(prefix='/reports', tags=['reports'])
 @router.get('/report_ask')
 async def get_rab_report(db: Annotated[AsyncSession, Depends(get_db)],
                          user: Annotated[dict, Depends(get_current_user)],
-                         date_limits: Annotated[PurchaseTimeLimits, Depends()]):
+                         date_limits: Annotated[PurchaseTimeLimits, Depends()],
+                         current: str | None = 'EUR'):
+    if current not in ('EUR', 'RUB', 'RSD', None):
+        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+
     #достаем данные из бд
     purchases = await get_purchases_in_limits_from_db(db, user.get('user_id'),
                                                       date_limits.start_date,
@@ -27,10 +31,12 @@ async def get_rab_report(db: Annotated[AsyncSession, Depends(get_db)],
                                                        date_limits.start_date,
                                                        date_limits.end_date)
     categories = await get_all_categories_from_db(db, user.get('user_id'))
+
     #собираем данные в один dict для отправки
     data = {'purchases': [item.to_dict() for item in purchases],
             'incomes': [item.to_dict() for item in incomes],
-            'categories': [item.to_dict() for item in categories]}
+            'categories': [item.to_dict() for item in categories],
+            'current_currency': current}
 
     loop = asyncio.get_running_loop()
     future = loop.create_future()
