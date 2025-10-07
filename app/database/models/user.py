@@ -18,3 +18,14 @@ class User(Base):
     purchases = relationship("Purchase", back_populates='user')
     incomes = relationship("Income", back_populates='user')
     categories = relationship("Category", back_populates='user')
+
+
+    def to_dict(self):
+        return {'id': self.id,
+                'firstname': self.firstname,
+                'lastname': self.lastname,
+                'username': self.username,
+                'email': self.email,
+                'hashed_password': self.hashed_password,
+                'is_active': self.is_activate,
+                'is_admin': self.is_admin}

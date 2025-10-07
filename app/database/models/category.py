@@ -20,4 +20,11 @@ class Category(Base):
                 'owner_id': self.owner_id,
                 'category_name': self.category_name,
                 'is_root': self.is_root}
+                
+    @classmethod
+    def from_json(cls, data: dict):
+        return cls(id=data["id"],
+                owner_id=data["owner_id"],
+                category_name=data["category_name"],
+                is_root=data["is_root"])
 

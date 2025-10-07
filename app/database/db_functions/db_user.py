@@ -1,4 +1,7 @@
+import json
+
 from app.database.models import User, Purchase, Income, Category
+from app.redis import Redis
 from app.schemas import CreateUser
 from sqlalchemy import insert, select
 

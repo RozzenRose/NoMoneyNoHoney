@@ -24,7 +24,7 @@ async def read_users_me(token: Annotated[str, Depends(oauth2_scheme)]):
             "email": user.get('email'),}
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED)
+@router.post('/create_user', status_code=status.HTTP_201_CREATED)
 async def create_user(db: Annotated[AsyncSession, Depends(get_db)], create_user: CreateUser):
     if not await email_validation(create_user.email):
         return {'status_code':status.HTTP_422_UNPROCESSABLE_ENTITY,

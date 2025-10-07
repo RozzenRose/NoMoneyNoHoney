@@ -17,12 +17,11 @@ async def get_all_categories_from_db(db, user_id) -> list[Category]:
     cache_key = f'{user_id}: categories'
     cache = await redis.get(cache_key)
     if cache:
-        print('Данные из кэша')
-        return json.loads(cache)
+        data = json.loads(cache)
+        return [Category.from_json(item) for item in data]
     query = select(Category).where(or_(Category.owner_id == user_id,
                                        Category.is_root.is_(True)))
     answer = await db.execute(query)
     data = answer.scalars().all()
     await redis.set(cache_key, json.dumps([item.to_dict() for item in data]), ex=180)
-    print('Данные сохранины в кэш')
     return data

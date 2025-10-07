@@ -11,12 +11,9 @@ class Purchase(Base):
     name = Column(String)
     description = Column(String)
     price = Column(Float)
-    is_rub = Column(Boolean)
-    is_euro = Column(Boolean)
-    is_rsd = Column(Boolean)
+    currency = Column(String, default='EUR')
     owner_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     category_id = Column(Integer, ForeignKey('categories.id'))
-    is_active = Column(Boolean, default=True)
     created_at = Column(Date, server_default=func.current_date())
 
     category = relationship("Category", back_populates='purchases')
@@ -29,10 +26,18 @@ class Purchase(Base):
                 'name': self.name,
                 'description': self.description,
                 'price': self.price,
-                'is_rub': self.is_rub,
-                'is_euro': self.is_euro,
-                'is_rsd': self.is_rsd,
+                'currency': self.currency,
                 'owner_id': self.owner_id,
                 'category_id': self.category_id,
-                'is_active': self.is_active,
                 'created_at': self.created_at.isoformat()}
+                
+    @classmethod
+    def from_json(cls, data: dict):
+        return cls(id=data["id"],
+                name=data["name"],
+                description=data["description"],
+                price=data["price"],
+                currency=data["currency"],
+                owner_id=data["owner_id"],
+                category_id=data["category_id"],
+                created_at=date.fromisoformat(data["created_at"]))

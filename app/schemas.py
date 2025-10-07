@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 from datetime import date
 from pydantic.v1 import root_validator
 
@@ -21,17 +21,12 @@ class CreateUser(BaseModel):
 class CreateIncome(BaseModel):
     description: str
     quantity: float
-    is_rub: bool
-    is_euro: bool
-    is_rsd: bool
+    currency: str
 
     @root_validator
-    def check_only_one_currency(cls, values):
-        is_rub = values.get('is_rub')
-        is_euro = values.get('is_euro')
-        is_rsd = values.get('is_rsd')
-        if sum([is_rub, is_euro, is_rsd]) != 1:
-            raise ValueError('Currency error: choose only one currency')
+    def check_currency(cls, values):
+        if values.get('currency') not in ('EUR', 'RUB', 'RSD'):
+            raise ValueError('Currency error: choose only EUR/RUB/RSD or leave this field blank')
         return values
 
 
@@ -56,9 +51,7 @@ class PurchaseBase(BaseModel):
     name: str
     description: str
     price: float
-    is_rub: bool
-    is_euro: bool
-    is_rsd: bool
+    currency: str
     category_id: int
 
 

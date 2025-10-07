@@ -1,6 +1,8 @@
 from app.database.engine import Base
-from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Float, DateTime, func
+from sqlalchemy import ForeignKey, Column, Integer, String, Boolean, Float, Date, func
 from sqlalchemy.orm import relationship
+from datetime import date
+
 
 class Income(Base):
     __tablename__ = 'incomes'
@@ -9,10 +11,8 @@ class Income(Base):
     owner_id = Column(Integer, ForeignKey('users.id'))
     description = Column(String)
     quantity = Column(Float)
-    is_rub = Column(Boolean)
-    is_euro = Column(Boolean)
-    is_rsd = Column(Boolean)
-    created_at = Column(DateTime, server_default=func.now())
+    currency = Column(String, default='EUR')
+    created_at = Column(Date, server_default=func.current_date())
 
     user = relationship('User', back_populates='incomes')
 
@@ -21,7 +21,14 @@ class Income(Base):
                 'owner_id': self.owner_id,
                 'description': self.description,
                 'quantity': self.quantity,
-                'is_rub': self.is_rub,
-                'is_euro': self.is_euro,
-                'is_rsd': self.is_rsd,
+                'currency': self.currency,
                 'created_at': self.created_at.isoformat()}
+
+    @classmethod
+    def from_json(cls, data: dict):
+        return cls(id=data["id"],
+                owner_id=data["owner_id"],
+                description=data["description"],
+                quantity=data["quantity"],
+                currency=data["currency"],
+                created_at=date.fromisoformat(data["created_at"]))

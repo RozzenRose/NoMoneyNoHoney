@@ -36,8 +36,8 @@ async def get_rab_report(db: Annotated[AsyncSession, Depends(get_db)],
     future = loop.create_future()
     correlation_id = str(uuid.uuid4()) #создаем уникальный id для сообщения
     channel = await RabbitMQConnectionManager.get_channel()
-    queue = await channel.declare_queue('report_queue', durable=False)
-    reply_queue = await channel.declare_queue('plot_queue', durable=True)
+    queue = await channel.declare_queue('report_queue', durable=True)
+    reply_queue = await channel.declare_queue('reply_report_queue', durable=True)
     #подписываемся на ответ
     consumer_tag = await consume_response(reply_queue, correlation_id, future)
     #отправляем сообщение
