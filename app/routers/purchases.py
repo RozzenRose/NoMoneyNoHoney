@@ -6,8 +6,8 @@ from app.functions.auth_functions import get_current_user
 from app.schemas import PurchasesListCreate, PurchaseTimeLimits
 from app.database.db_functions import (create_purchases_list_in_db, get_all_purchases_from_db,
                                 get_purchases_current_week_from_db, get_purchases_in_limits_from_db)
-from app.rabbitmq import RabbitMQConnectionManager, consume_response, send_message
-import asyncio, uuid, json
+from app.rabbitmq import rpc_puchases_request
+import asyncio, json
 
 
 router = APIRouter(prefix='/purchases', tags=['purchases'])
@@ -26,52 +26,47 @@ async def new_list_purchases(db: Annotated[AsyncSession, Depends(get_db)],
 async def get_all_purchases(db: Annotated[AsyncSession, Depends(get_db)],
                             user: Annotated[dict, Depends(get_current_user)],
                             current: str | None = None):
-    loop = asyncio.get_running_loop()
-    future = loop.create_future()
-    correlation_id = str(uuid.uuid4())
-    channel = await RabbitMQConnectionManager.get_channel()
-    queue = await channel.declare_queue('api_aggregation_queue', durable=True)
-    reply_queue = await channel.declare_queue('reply_api_aggregation_queue', durable=True)
-    consumer_tag = await consume_response(reply_queue, correlation_id, future)
-    answer = await get_all_purchases_from_db(db, user.get('user_id'))
     if current not in ('EUR', 'RUB', 'RSD', None):
         raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
-    data = {'purchases': [item.to_dict() for item in answer], 'current_currency': current, 'content': 'Purchases'}
-    await send_message(channel, json.dumps(data).encode(), queue, reply_queue, correlation_id)
+    future = asyncio.get_running_loop().create_future()
+    raw_data = await get_all_purchases_from_db(db, user.get('user_id'))
+    reply_queue, consumer_tag = await rpc_puchases_request(future, raw_data, current)
 
     try:
-        response = json.loads(await asyncio.wait_for(future, timeout=10))
-        return {'purchases': answer} | response
+        response = json.loads(await asyncio.wait_for(future, timeout=10))  # ждем ответа
+        return {'purchases': raw_data} | response
     except asyncio.TimeoutError:
-        raise HTTPException(status_code=504, detail="Timeout")
+        return {'purchases': raw_data,
+                'euro': "CurrentAggregator doesn't response",
+                'rub': "CurrentAggregator doesn't response",
+                'rsd': "CurrentAggregator doesn't response",
+                'answer': "CurrentAggregator doesn't response"}
     finally:
-        await reply_queue.cancel(consumer_tag)
+        await reply_queue.cancel(consumer_tag)  # сворачиваем канал
+
 
 
 @router.get('/last_7_days_purchases')
 async def get_last_7_days_purchases(db: Annotated[AsyncSession, Depends(get_db)],
                                      user: Annotated[dict, Depends(get_current_user)],
                                      current: str | None = None):
-    loop = asyncio.get_running_loop()
-    future = loop.create_future()
-    correlation_id = str(uuid.uuid4())
-    channel = await RabbitMQConnectionManager.get_channel()
-    queue = await channel.declare_queue('api_aggregation_queue', durable=True)
-    reply_queue = await channel.declare_queue('reply_api_aggregation_queue', durable=True)
-    consumer_tag = await consume_response(reply_queue, correlation_id, future)
-    answer = await get_purchases_current_week_from_db(db, user.get('user_id'))
     if current not in ('EUR', 'RUB', 'RSD', None):
         raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
-    data = {'purchases': [item.to_dict() for item in answer], 'current_currency': current, 'content': 'Purchases'}
-    await send_message(channel, json.dumps(data).encode(), queue, reply_queue, correlation_id)
+    future = asyncio.get_running_loop().create_future()
+    raw_data = await get_purchases_current_week_from_db(db, user.get('user_id'))
+    reply_queue, consumer_tag = await rpc_puchases_request(future, raw_data, current)
 
     try:
-        response = json.loads(await asyncio.wait_for(future, timeout=10))
-        return {'purchases': answer} | response
+        response = json.loads(await asyncio.wait_for(future, timeout=10))  # ждем ответа
+        return {'purchases': raw_data} | response
     except asyncio.TimeoutError:
-        raise HTTPException(status_code=504, detail="Timeout")
+        return {'purchases': raw_data,
+                'euro': "CurrentAggregator doesn't response",
+                'rub': "CurrentAggregator doesn't response",
+                'rsd': "CurrentAggregator doesn't response",
+                'answer': "CurrentAggregator doesn't response"}
     finally:
-        await reply_queue.cancel(consumer_tag)
+        await reply_queue.cancel(consumer_tag)  # сворачиваем канал
 
 
 @router.get('/purchases_limits')
@@ -79,25 +74,22 @@ async def get_purchases_in_limits(db: Annotated[AsyncSession, Depends(get_db)],
                                   user: Annotated[dict, Depends(get_current_user)],
                                   date_limits: Annotated[PurchaseTimeLimits, Depends()],
                                   current: str | None = None):
-    loop = asyncio.get_running_loop()
-    future = loop.create_future()
-    correlation_id = str(uuid.uuid4())
-    channel = await RabbitMQConnectionManager.get_channel()
-    queue = await channel.declare_queue('api_aggregation_queue', durable=True)
-    reply_queue = await channel.declare_queue('reply_api_aggregation_queue', durable=True)
-    consumer_tag = await consume_response(reply_queue, correlation_id, future)
-    answer = await get_purchases_in_limits_from_db(db, user.get('user_id'),
-                                                  date_limits.start_date,
-                                                  date_limits.end_date)
     if current not in ('EUR', 'RUB', 'RSD', None):
         raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
-    data = {'purchases': [item.to_dict() for item in answer], 'current_currency': current, 'content': 'Purchases'}
-    await send_message(channel, json.dumps(data).encode(), queue, reply_queue, correlation_id)
+    future = asyncio.get_running_loop().create_future()
+    raw_data = await get_purchases_in_limits_from_db(db, user.get('user_id'),
+                                                   date_limits.start_date,
+                                                   date_limits.end_date)
+    reply_queue, consumer_tag = await rpc_puchases_request(future, raw_data, current)
 
     try:
-        response = json.loads(await asyncio.wait_for(future, timeout=10))
-        return {'purchases': answer} | response
+        response = json.loads(await asyncio.wait_for(future, timeout=10))  # ждем ответа
+        return {'purchases': raw_data} | response
     except asyncio.TimeoutError:
-        raise HTTPException(status_code=504, detail="Timeout")
+        return {'purchases': raw_data,
+                'euro': "CurrentAggregator doesn't response",
+                'rub': "CurrentAggregator doesn't response",
+                'rsd': "CurrentAggregator doesn't response",
+                'answer': "CurrentAggregator doesn't response"}
     finally:
-        await reply_queue.cancel(consumer_tag)
+        await reply_queue.cancel(consumer_tag)  # сворачиваем канал

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import uuid, asyncio, io, json
 from starlette.responses import StreamingResponse
-from app.rabbitmq import RabbitMQConnectionManager, consume_response, send_message
+from app.rabbitmq import rpc_report_request
 from typing import Annotated
 from app.schemas import PurchaseTimeLimits
 from app.database.db_depends import get_db
@@ -38,16 +38,8 @@ async def get_rab_report(db: Annotated[AsyncSession, Depends(get_db)],
             'categories': [item.to_dict() for item in categories],
             'current_currency': current}
 
-    loop = asyncio.get_running_loop()
-    future = loop.create_future()
-    correlation_id = str(uuid.uuid4()) #создаем уникальный id для сообщения
-    channel = await RabbitMQConnectionManager.get_channel()
-    queue = await channel.declare_queue('report_queue', durable=True)
-    reply_queue = await channel.declare_queue('reply_report_queue', durable=True)
-    #подписываемся на ответ
-    consumer_tag = await consume_response(reply_queue, correlation_id, future)
-    #отправляем сообщение
-    await send_message(channel, json.dumps(data).encode(), queue, reply_queue, correlation_id)
+    future = asyncio.get_running_loop().create_future() # гтовим футура для ответа
+    reply_queue, consumer_tag = await rpc_report_request(future, data, current) # отправляем данные
 
     try:
         response = await asyncio.wait_for(future, timeout=10) #ждем ответа
