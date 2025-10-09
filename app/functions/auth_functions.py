@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-import jwt, uuid
+import jwt
 from app.config import settings
 from fastapi import Depends
 from typing import Annotated
@@ -38,9 +38,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 
 
 async def create_refresh_token(username: str) -> str:
-    token = str(uuid.uuid4())
+    payload = {'username': username,
+               'exp': datetime.now(timezone.utc) + timedelta(weeks=1)}
+    token = jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
     redis = await Redis.get_redis()
-    await redis.set(f'refresh_token: {token}', username, ex=60*60*24*7)
+    await redis.set(f'refresh_token: {token}', username, ex=60*60*24*7) # Это одна неделя
     return token
 
 

@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-import aio_pika
 
 
 class Settings(BaseSettings):
