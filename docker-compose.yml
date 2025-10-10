@@ -96,6 +96,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      web:
+        condition: service_started
     restart: unless-stopped
 
   currency_aggregator:
@@ -113,6 +115,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      web:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
