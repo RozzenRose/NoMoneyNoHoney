@@ -1,12 +1,12 @@
 import aio_pika
-from aio_pika.abc import AbstractRobustConnection, AbstractChannel
+from aio_pika.abc import AbstractRobustConnection, AbstractRobustChannel
 from typing import Optional
 from app.config import settings
 
 
 class RabbitMQConnectionManager:
     _connection: Optional[AbstractRobustConnection] = None
-    _channel: Optional[AbstractChannel] = None
+    _channels: Optional[AbstractRobustChannel] = {}
     _url: str = settings.rabbitmq_url
 
 
@@ -18,16 +18,20 @@ class RabbitMQConnectionManager:
 
 
     @classmethod
-    async def get_channel(cls) -> AbstractChannel:
-        if cls._channel is None or cls._channel.is_closed:
+    async def get_channel(cls, name: str = "default") -> AbstractRobustChannel:
+        if name not in cls._channels or cls._channels[name].is_closed:
             connection = await cls.get_connection()
-            cls._channel = await connection.channel()
-        return cls._channel
+            cls._channels[name] = await connection.channel()
+        return cls._channels[name]
 
 
     @classmethod
-    async def close_connection(cls):
-        if cls._channel and not cls._channel.is_closed:
-            await cls._channel.close()
+    async def close_all(cls):
+        """Закрывает все каналы и соединение"""
+        for name, channel in cls._channels.items():
+            if channel and not channel.is_closed:
+                await channel.close()
+        cls._channels.clear()
+
         if cls._connection and not cls._connection.is_closed:
             await cls._connection.close()
