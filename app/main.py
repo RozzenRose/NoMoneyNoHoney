@@ -9,7 +9,7 @@ from app.rabbitmq import RabbitMQConnectionManager
 
 app = FastAPI()
 
-
+'''
 @app.on_event("startup")
 async def startup_event():
     await RabbitMQConnectionManager.get_connection()
@@ -18,7 +18,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     await RabbitMQConnectionManager.close_connection()
-
+'''
 
 @app.get("/")
 async def root():

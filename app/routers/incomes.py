@@ -29,7 +29,7 @@ async def get_all_incomes(db: Annotated[AsyncSession, Depends(get_db)],
                           user: Annotated[dict, Depends(get_current_user)],
                           current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_all_incomes_from_db(db, user.get('user_id'))
     reply_queue, consumer_tag = await rpc_incomes_request(future, raw_data, current)
@@ -53,7 +53,7 @@ async def get_incomes_current_month(db: Annotated[AsyncSession, Depends(get_db)]
                                     user: Annotated[dict, Depends(get_current_user)],
                                     current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_incomes_current_from_db(db, user.get('user_id'))
     reply_queue, consumer_tag = await rpc_incomes_request(future, raw_data, current)
@@ -77,7 +77,7 @@ async def get_incomes_last_month(db: Annotated[AsyncSession, Depends(get_db)],
                                  user: Annotated[dict, Depends(get_current_user)],
                                  current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_incomes_last_month_from_db(db, user.get('user_id'))
     reply_queue, consumer_tag = await rpc_incomes_request(future, raw_data, current)
@@ -101,7 +101,7 @@ async def get_incomes_in_time_limits(db: Annotated[AsyncSession, Depends(get_db)
                                      date_limits: IncomeTimeLimits = Depends(),
                                      current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_incomes_in_time_limits_from_db(db, user.get('user_id'),
                                                        date_limits.start_date,

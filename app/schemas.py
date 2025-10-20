@@ -1,6 +1,6 @@
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, field_validator, PositiveFloat
 from datetime import date
-from pydantic.v1 import root_validator
+from pydantic.v1 import root_validator, validator
 
 
 class CreateUser(BaseModel):
@@ -20,14 +20,14 @@ class CreateUser(BaseModel):
 
 class CreateIncome(BaseModel):
     description: str
-    quantity: float
+    quantity: PositiveFloat
     currency: str
 
-    @root_validator
-    def check_currency(cls, values):
-        if values.get('currency') not in ('EUR', 'RUB', 'RSD'):
+    @field_validator('currency')
+    def check_currency(cls, value):
+        if value not in ('EUR', 'RUB', 'RSD'):
             raise ValueError('Currency error: choose only EUR/RUB/RSD or leave this field blank')
-        return values
+        return value
 
 
 class IncomeTimeLimits(BaseModel):

@@ -22,4 +22,4 @@ async def create_category(db: Annotated[AsyncSession, Depends(get_db)], category
 async def get_all_categories(db: Annotated[AsyncSession, Depends(get_db)],
                              user: Annotated[dict, Depends(get_current_user)]):
     answer = await get_all_categories_from_db(db, user.get('user_id'))
-    return {'catigories': answer}
+    return {'categories': answer}
