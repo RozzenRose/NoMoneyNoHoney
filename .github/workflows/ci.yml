@@ -44,11 +44,9 @@ jobs:
       - name: Build main service image
         run: docker build -t "$IMAGE" .
 
-      # 6 Прогон тестов внутри контейнера
+      # 6 Прогон тестов внутри локального образа
       - name: Run tests
-        run: |
-          IMAGE=ghcr.io/rozzenrose/nmnh:${{ github.sha }}
-          docker run --rm "$IMAGE" python -m pytest || (echo "Tests failed" && exit 1)
+        run: docker run --rm "$IMAGE" python -m pytest
 
       # 7️ Публикуем образ в GHCR (только для main)
       - name: Push image to GHCR
