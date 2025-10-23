@@ -6,14 +6,14 @@ from app.functions.auth_functions import get_current_user
 from app.schemas import PurchasesListCreate, PurchaseTimeLimits
 from app.database.db_functions import (create_purchases_list_in_db, get_all_purchases_from_db,
                                 get_purchases_current_week_from_db, get_purchases_in_limits_from_db)
-from app.rabbitmq import rpc_puchases_request
+from app.rabbitmq import rpc_purchases_request
 import asyncio, json
 
 
 router = APIRouter(prefix='/purchases', tags=['purchases'])
 
 
-@router.post('/new_purchases')
+@router.post('/new_purchases', status_code=status.HTTP_201_CREATED)
 async def new_list_purchases(db: Annotated[AsyncSession, Depends(get_db)],
                              purchases: PurchasesListCreate,
                              user: Annotated[dict, Depends(get_current_user)]):
@@ -27,10 +27,10 @@ async def get_all_purchases(db: Annotated[AsyncSession, Depends(get_db)],
                             user: Annotated[dict, Depends(get_current_user)],
                             current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_all_purchases_from_db(db, user.get('user_id'))
-    reply_queue, consumer_tag = await rpc_puchases_request(future, raw_data, current)
+    reply_queue, consumer_tag = await rpc_purchases_request(future, raw_data, current)
 
     try:
         response = json.loads(await asyncio.wait_for(future, timeout=10))  # ждем ответа
@@ -51,10 +51,10 @@ async def get_last_7_days_purchases(db: Annotated[AsyncSession, Depends(get_db)]
                                      user: Annotated[dict, Depends(get_current_user)],
                                      current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_purchases_current_week_from_db(db, user.get('user_id'))
-    reply_queue, consumer_tag = await rpc_puchases_request(future, raw_data, current)
+    reply_queue, consumer_tag = await rpc_purchases_request(future, raw_data, current)
 
     try:
         response = json.loads(await asyncio.wait_for(future, timeout=10))  # ждем ответа
@@ -75,12 +75,12 @@ async def get_purchases_in_limits(db: Annotated[AsyncSession, Depends(get_db)],
                                   date_limits: Annotated[PurchaseTimeLimits, Depends()],
                                   current: str | None = None):
     if current not in ('EUR', 'RUB', 'RSD', None):
-        raise HTTPException(status_code=400, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
+        raise HTTPException(status_code=422, detail="Currency error: choose only EUR/RUB/RSD or leave this field blank")
     future = asyncio.get_running_loop().create_future()
     raw_data = await get_purchases_in_limits_from_db(db, user.get('user_id'),
                                                    date_limits.start_date,
                                                    date_limits.end_date)
-    reply_queue, consumer_tag = await rpc_puchases_request(future, raw_data, current)
+    reply_queue, consumer_tag = await rpc_purchases_request(future, raw_data, current)
 
     try:
         response = json.loads(await asyncio.wait_for(future, timeout=10))  # ждем ответа

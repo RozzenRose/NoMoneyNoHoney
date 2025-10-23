@@ -1,4 +1,8 @@
+from typing import Any
+
 import aio_pika, asyncio, uuid, json
+from aio_pika.abc import AbstractRobustQueue
+
 from app.rabbitmq import RabbitMQConnectionManager
 
 
@@ -33,7 +37,7 @@ async def rpc_incomes_request(future, data, current):
     return reply_queue, consumer_tag
 
 
-async def rpc_puchases_request(future, data, current):
+async def rpc_purchases_request(future: object, data: object, current: object) -> tuple[AbstractRobustQueue, Any]:
     correlation_id = str(uuid.uuid4())
     channel = await RabbitMQConnectionManager.get_channel('currency_aggregator')
     queue = await channel.declare_queue('api_aggregation_queue', durable=True)

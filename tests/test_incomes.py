@@ -1,5 +1,3 @@
-import json
-
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, ANY
@@ -108,7 +106,7 @@ fake_result = [{ # Объект для замены результата ДБе�
                 }]
 
 
-async def mock_rpc_incomes_request(future, raw_data, current):
+async def mock_rpc_request(future, raw_data, current):
     '''Мок RPC функции'''
     future.set_result('{"euro": 100, "rub": 10000, "rsd": 11700, "answer": 300}')
     mock_queue = AsyncMock()
@@ -122,7 +120,7 @@ async def test_get_all_incomes_success(monkeypatch, client_with_overrides):
 
     # patch dependencies
     monkeypatch.setattr("app.routers.incomes.get_all_incomes_from_db", mock_get_all_incomes_from_db)
-    monkeypatch.setattr("app.routers.incomes.rpc_incomes_request", mock_rpc_incomes_request)
+    monkeypatch.setattr("app.routers.incomes.rpc_incomes_request", mock_rpc_request)
 
     # Запрос
     response = client_with_overrides.get("/incomes/all_your_incomes")
@@ -135,6 +133,8 @@ async def test_get_all_incomes_success(monkeypatch, client_with_overrides):
     assert data["rub"] == 10000
     assert data["rsd"] == 11700
     assert data["answer"] == 300
+
+    mock_get_all_incomes_from_db.assert_awaited_once_with(ANY, 123)
 
 
 @pytest.mark.asyncio
@@ -153,7 +153,7 @@ async def test_incomes_current_month(monkeypatch, client_with_overrides):
     
     # Заменяем запвисимости
     monkeypatch.setattr('app.routers.incomes.get_incomes_current_from_db', mock_get_incomes_current_from_db)
-    monkeypatch.setattr('app.routers.incomes.rpc_incomes_request', mock_rpc_incomes_request)
+    monkeypatch.setattr('app.routers.incomes.rpc_incomes_request', mock_rpc_request)
 
     # Запрос
     response = client_with_overrides.get("/incomes/incomes_current_month")
@@ -166,6 +166,8 @@ async def test_incomes_current_month(monkeypatch, client_with_overrides):
     assert data["rub"] == 10000
     assert data["rsd"] == 11700
     assert data["answer"] == 300
+
+    mock_get_incomes_current_from_db.assert_awaited_once_with(ANY, 123)
 
 
 @pytest.mark.asyncio
@@ -184,7 +186,7 @@ async def test_get_incomes_in_time_limits(monkeypatch, client_with_overrides):
 
     # Заменяем запвисимости
     monkeypatch.setattr('app.routers.incomes.get_incomes_in_time_limits_from_db', mock_get_incomes_in_time_limits)
-    monkeypatch.setattr('app.routers.incomes.rpc_incomes_request', mock_rpc_incomes_request)
+    monkeypatch.setattr('app.routers.incomes.rpc_incomes_request', mock_rpc_request)
 
     # Запрос
     response = client_with_overrides.get("/incomes/incomes_limits")
@@ -197,6 +199,8 @@ async def test_get_incomes_in_time_limits(monkeypatch, client_with_overrides):
     assert data["rub"] == 10000
     assert data["rsd"] == 11700
     assert data["answer"] == 300
+
+    mock_get_incomes_in_time_limits.assert_awaited_once_with(ANY, 123, ANY, ANY)
 
 
 @pytest.mark.asyncio

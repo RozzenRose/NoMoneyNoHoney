@@ -1,0 +1,54 @@
+name: CI/CD — Build, Test, Push to GHCR
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️ Клонируем код
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2 Настраиваем Docker Buildx (для кросс-платформенных сборок)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3 Логинимся в GHCR
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4 Сборка образа
+      - name: Build Docker image
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/myservice:${{ github.sha }}
+          docker build -t "$IMAGE" .
+
+      # 5 Прогон тестов внутри контейнера
+      # ❗ Замени команду на свою (например `npm test`, `pytest`, `go test ./...`)
+      - name: Run tests
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/myservice:${{ github.sha }}
+          docker run --rm "$IMAGE" python -m pytest || (echo "Tests failed" && exit 1)
+
+      # 6 Публикуем образ в GHCR (для ветки main)
+      - name: Push image to GHCR
+        if: github.ref == 'refs/heads/main'
+        run: |
+          IMAGE_BASE=ghcr.io/${{ github.repository_owner }}/myservice
+          docker tag $IMAGE $IMAGE_BASE:${{ github.sha }}
+          docker tag $IMAGE $IMAGE_BASE:latest
+          docker push $IMAGE_BASE:${{ github.sha }}
+          docker push $IMAGE_BASE:latest

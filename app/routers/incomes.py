@@ -20,7 +20,7 @@ async def create_income(db: Annotated[AsyncSession, Depends(get_db)],
                         user: Annotated[dict, Depends(get_current_user)]):
     await create_income_in_db(db, user.get('user_id'), income.description, income.quantity,
                               income.currency)
-    return {'status_code':status.HTTP_201_CREATED,
+    return {'status_code': status.HTTP_201_CREATED,
             'transaction': 'Income created successfully'}
 
 
