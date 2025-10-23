@@ -33,7 +33,7 @@ jobs:
       # 4 Сборка образа
       - name: Build Docker image
         run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/myservice:${{ github.sha }}
+          IMAGE=ghcr.io/${{ github.repository_owner | lower }}/myservice:${{ github.sha }}
           docker build -t "$IMAGE" .
 
       # 5 Прогон тестов внутри контейнера
