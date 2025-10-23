@@ -46,7 +46,11 @@ jobs:
 
       # 6 Прогон тестов внутри локального образа
       - name: Run tests
-        run: docker run --rm "$IMAGE" python -m pytest
+        run: |
+          # Проверяем структуру
+          docker run --rm "$IMAGE" ls -la
+          # Запускаем тесты с подробным выводом
+          docker run --rm "$IMAGE" python -m pytest tests/ -v --tb=short
 
       # 7️ Публикуем образ в GHCR (только для main)
       - name: Push image to GHCR

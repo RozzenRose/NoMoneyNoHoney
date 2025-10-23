@@ -2,6 +2,5 @@
 .env
 .env.example
 alembic.ini
-test.py
 .idea
 __pycache__/
