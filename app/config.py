@@ -5,6 +5,8 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
+    URL_RATE_API: str
+
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_USER: str

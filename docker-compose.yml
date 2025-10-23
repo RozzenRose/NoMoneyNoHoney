@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   web:
-    build:
-      context: .
-      dockerfile: ./app/Dockerfile
+    image: ghcr.io/rozzenrose/nmnh:latest
     command: >
       sh -c "python -m alembic upgrade head &&
              uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
@@ -85,14 +83,13 @@ services:
     restart: unless-stopped
 
   report_builder:
-    build:
-      context: ../ReportBuilder
-      dockerfile: ./Dockerfile
     container_name: nmnh_report_builder
-    env_file:
-      - .env
+    image: ghcr.io/rozzenrose/report_builder:latest
     environment:
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -101,15 +98,20 @@ services:
     restart: unless-stopped
 
   currency_aggregator:
-    build:
-      context: ../CurrencyAggregator
-      dockerfile: ./Dockerfile
+    image: ghcr.io/rozzenrose/currency_aggregator:latest
     container_name: nmnh_currency_aggregator
     env_file:
       - .env
     environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}
+      - REDIS_URL=${REDIS_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DB=${REDIS_DB}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+      - URL_RATE_API=${URL_RATE_API}
     depends_on:
       redis:
         condition: service_healthy
