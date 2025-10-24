@@ -52,14 +52,19 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+
           REDIS_HOST: ${{ secrets.REDIS_HOST }}
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           REDIS_DB: ${{ secrets.REDIS_DB }}
+
           RABBITMQ_HOST: ${{ secrets.RABBITMQ_HOST }}
           RABBITMQ_PORT: ${{ secrets.RABBITMQ_PORT }}
           RABBITMQ_USER: ${{ secrets.RABBITMQ_USER }}
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+
+          ALGORITHM: ${{ secrets.ALGORITHM }}
+          ABSTRACT_API_KEY: ${{ secrets.ABSTRACT_API_KEY}}
           URL_RATE_API: ${{ secrets.URL_RATE_API }}
         run: |
           # Создаем строку с переменными окружения для docker run
