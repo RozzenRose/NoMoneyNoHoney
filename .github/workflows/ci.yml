@@ -46,6 +46,11 @@ jobs:
 
       # 6 Прогон тестов внутри локального образа
       - name: Run tests
+        run: |
+          # Проверяем структуру
+          docker run --rm "$IMAGE" ls -la
+          # Запускаем тесты с подробным выводом
+          docker run --rm "$IMAGE" python -m pytest tests/ -v --tb=shor
         env:
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -61,11 +66,6 @@ jobs:
           RABBITMQ_USER: ${{ secrets.RABBITMQ_USER }}
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
           URL_RATE_API: ${{ secrets.URL_RATE_API }}
-        run: |
-          # Проверяем структуру
-          docker run --rm "$IMAGE" ls -la
-          # Запускаем тесты с подробным выводом
-          docker run --rm "$IMAGE" python -m pytest tests/ -v --tb=short
 
       # 7️ Публикуем образ в GHCR (только для main)
       - name: Push image to GHCR
