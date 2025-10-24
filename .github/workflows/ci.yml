@@ -46,18 +46,6 @@ jobs:
 
       # 6 Прогон тестов внутри локального образа
       - name: Run tests
-        run: |
-          # Создаем строку с переменными окружения для docker run
-          ENV_VARS=""
-          for var in POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB POSTGRES_PORT \
-                     REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_DB \
-                     RABBITMQ_HOST RABBITMQ_PORT RABBITMQ_USER RABBITMQ_PASSWORD \
-                     URL_RATE_API; do
-            ENV_VARS="$ENV_VARS -e $var"
-          done
-          
-          # Запускаем тесты
-          docker run --rm $ENV_VARS "$IMAGE" python -m pytest tests/ -v --tb=short
         env:
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -73,6 +61,18 @@ jobs:
           RABBITMQ_USER: ${{ secrets.RABBITMQ_USER }}
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
           URL_RATE_API: ${{ secrets.URL_RATE_API }}
+        run: |
+          # Создаем строку с переменными окружения для docker run
+          ENV_VARS=""
+          for var in POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB POSTGRES_PORT \
+                     REDIS_HOST REDIS_PORT REDIS_PASSWORD REDIS_DB \
+                     RABBITMQ_HOST RABBITMQ_PORT RABBITMQ_USER RABBITMQ_PASSWORD \
+                     URL_RATE_API; do
+            ENV_VARS="$ENV_VARS -e $var"
+          done
+          
+          # Запускаем тесты
+          docker run --rm $ENV_VARS "$IMAGE" python -m pytest tests/ -v --tb=short
 
       # 7️ Публикуем образ в GHCR (только для main)
       - name: Push image to GHCR
