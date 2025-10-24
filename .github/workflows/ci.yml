@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_BASE: ghcr.io/rozzenrose/report_builder
-      IMAGE: ghcr.io/rozzenrose/report_builder:${{ github.sha }}
+      IMAGE_BASE: ghcr.io/rozzenrose/nmnh
+      IMAGE: ghcr.io/rozzenrose/nmnh:${{ github.sha }}
 
     steps:
       # 1️ Клонируем код
