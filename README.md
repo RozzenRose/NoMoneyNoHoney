@@ -78,3 +78,4 @@ After starting the application, the API documentation will be available at:
 ## Services:
 - Reproting service: https://github.com/RozzenRose/ReportBuilder
 - Currency calculate service: https://github.com/RozzenRose/CurrencyAggregator
+- Service for conversation with SD: https://github.com/RozzenRose/DSAsker
