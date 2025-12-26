@@ -30,7 +30,6 @@ services:
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
 
       - URL_RATE_API=${URL_RATE_API}
-
       - DS_API_KEY=${DS_API_KEY}
     depends_on:
       db:
