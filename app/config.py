@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     REDIS_DB: int
     REDIS_PASSWORD: str
 
+    DS_API_KEY: str
+
 
     @property
     def database_url(self) -> str:

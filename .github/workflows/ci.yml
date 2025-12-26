@@ -66,6 +66,8 @@ jobs:
           ALGORITHM: ${{ secrets.ALGORITHM }}
           ABSTRACT_API_KEY: ${{ secrets.ABSTRACT_API_KEY}}
           URL_RATE_API: ${{ secrets.URL_RATE_API }}
+
+          DS_API_KEY: ${{ secrets.DS_API_KEY }}
         run: |
           # Создаем строку с переменными окружения для docker run
           ENV_VARS=""
