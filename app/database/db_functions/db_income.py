@@ -1,10 +1,15 @@
-from sqlalchemy import insert, select, func, extract
+from sqlalchemy import insert, select, func, extract, delete
 from app.database.models import User, Purchase, Income, Category
 from app.redis import Redis
 import json
 
 
 async def create_income_in_db(db, owner, discription, quantity, currency) -> None:
+    '''Добавление доходов сносит весь кеш доходв юзера'''
+    redis = await Redis.get_redis()
+    pattern = f'{owner}: incomes:*'
+    async for key in redis.scan_iter(pattern):
+        await redis.unlink(key)
     data = insert(Income).values(
         owner_id=int(owner),
         description=discription,
@@ -82,3 +87,16 @@ async def get_incomes_in_time_limits_from_db(db, user_id, start_date, end_date) 
     data = answer.scalars().all()
     await redis.set(cache_key, json.dumps([item.to_dict() for item in data]), ex=180)
     return data
+
+
+async def delete_incomes_form_db(db, owner_id, incomes_id) -> None:
+    '''Удаление сносит весь кеш доходов юзера'''
+    redis = await Redis.get_redis()
+    pattern = f'{owner_id}: incomes:*'
+    async for key in redis.scan_iter(pattern):
+        await redis.unlink(key)
+    query = delete(Income).where(Income.owner_id==owner_id,
+                                   Income.id.in_(incomes_id))
+    await db.execute(query)
+    await db.commit()
+

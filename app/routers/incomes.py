@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import CreateIncome, IncomeTimeLimits
 from app.database.db_functions import (create_income_in_db, get_all_incomes_from_db,
                                        get_incomes_current_from_db, get_incomes_last_month_from_db,
-                                       get_incomes_in_time_limits_from_db)
+                                       get_incomes_in_time_limits_from_db, delete_incomes_form_db)
 from app.functions.auth_functions import get_current_user
 from app.rabbitmq import rpc_incomes_request
 import asyncio, json
@@ -71,7 +71,6 @@ async def get_incomes_current_month(db: Annotated[AsyncSession, Depends(get_db)]
         await reply_queue.cancel(consumer_tag)
 
 
-
 @router.get('/incomes_last_month')
 async def get_incomes_last_month(db: Annotated[AsyncSession, Depends(get_db)],
                                  user: Annotated[dict, Depends(get_current_user)],
@@ -119,3 +118,12 @@ async def get_incomes_in_time_limits(db: Annotated[AsyncSession, Depends(get_db)
                 'answer': "CurrentAggregator doesn't response"}
     finally:
         await reply_queue.cancel(consumer_tag)
+
+
+@router.delete('/delete_incomes', status_code=status.HTTP_200_OK)
+async def delete_incomes(db: Annotated[AsyncSession, Depends(get_db)],
+                         user: Annotated[dict, Depends(get_current_user)],
+                         incomes_id: list[int]):
+    await delete_incomes_form_db(db, user.get('user_id'), incomes_id)
+    return {'status_code': status.HTTP_200_OK,
+            'transaction': 'The removal process has begun'}

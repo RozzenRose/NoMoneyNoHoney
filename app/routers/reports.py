@@ -42,7 +42,7 @@ async def get_rab_report(db: Annotated[AsyncSession, Depends(get_db)],
     reply_queue, consumer_tag = await rpc_report_request(future, data, current) # отправляем данные
 
     try:
-        response = await asyncio.wait_for(future, timeout=10) #ждем ответа
+        response = await asyncio.wait_for(future, timeout=60) #ждем ответа
         #возвращаем ответ юзеру
         return StreamingResponse(io.BytesIO(response), media_type='application/pdf', headers = {
         "Content-Disposition": "attachment; filename=example.pdf"})

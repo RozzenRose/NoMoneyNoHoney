@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.functions.auth_functions import get_current_user
 from app.schemas import PurchasesListCreate, PurchaseTimeLimits
 from app.database.db_functions import (create_purchases_list_in_db, get_all_purchases_from_db,
-                                get_purchases_current_week_from_db, get_purchases_in_limits_from_db)
+                                get_purchases_current_week_from_db, get_purchases_in_limits_from_db,
+                                       delete_purchases_from_db)
 from app.rabbitmq import rpc_purchases_request
 import asyncio, json
 
@@ -93,3 +94,12 @@ async def get_purchases_in_limits(db: Annotated[AsyncSession, Depends(get_db)],
                 'answer': "CurrentAggregator doesn't response"}
     finally:
         await reply_queue.cancel(consumer_tag)  # сворачиваем канал
+
+
+@router.delete('/delete_purchases', status_code=status.HTTP_200_OK)
+async def delete_purchases(db: Annotated[AsyncSession, Depends(get_db)],
+                           user: Annotated[dict, Depends(get_current_user)],
+                           purchases_id: list[int]):
+    await delete_purchases_from_db(db, user.get('user_id'), purchases_id)
+    return {'status_code': status.HTTP_200_OK,
+            'transaction': 'The removal process has begun'}

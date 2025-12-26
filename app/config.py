@@ -15,7 +15,8 @@ class Settings(BaseSettings):
 
     abstract_api_key: str = ('your-abstract-api-key')
 
-    SECRET_KEY: str = 'your_secret_key' # ключ для создания JWT токенов
+    SECRET_KEY: str = 'your_secret_key' # ключ для соз
+    # дания JWT токенов
     ALGORITHM: str # алгоритм для создания JWT токенов
 
     RABBITMQ_HOST: str

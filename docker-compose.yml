@@ -134,5 +134,15 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  ds_asker:
+    container_name: nmnh_ds_asker
+    image: ghcr.io/rozzenrose/ds_asker:latest
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+    restart: unless-stopped
+
 volumes:
   postgres_data:
