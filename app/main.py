@@ -66,7 +66,6 @@ async def work_check(db: Annotated[AsyncSession, Depends(get_db)]):
 async def metrics():
     return Response(generate_latest(), media_type="text/plain")
 
-
 app.include_router(auth_router)
 app.include_router(categories_router)
 app.include_router(incomes_router)
